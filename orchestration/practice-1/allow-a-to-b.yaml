@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-b-to-a
+  namespace: netpol-test
+spec:
+  podSelector:
+    matchLabels:
+      app: a # This policy applies to pods with label app=a
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: b # Allow traffic from pods with label app=b
