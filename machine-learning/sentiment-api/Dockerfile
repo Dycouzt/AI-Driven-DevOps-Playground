@@ -1,13 +1,16 @@
 FROM python:3.11-slim AS builder
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --prefix=/install --no-cache-dir -r requirements.txt
 COPY app.py .
 
 FROM python:3.11-slim AS runtime
 WORKDIR /app
 RUN adduser --no-create-home appuser
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+# Copy site-packages
+COPY --from=builder /install/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+# Copy binaries
+COPY --from=builder /install/bin/gunicorn /usr/local/bin/gunicorn
 COPY --from=builder /app/app.py .
 USER appuser
 EXPOSE 8080
